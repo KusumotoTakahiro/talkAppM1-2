@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  backend:
+    tty: true
+    container_name: back-container
+    build:
+      context: ./backend
+      dockerfile: /Dockerfile
+
+    volumes:
+      - .:/code
+      - ./backend:/code/backend
+    # ローカルのポート:コンテナのポート
+    ports:
+      - "8080:8080"
+    command: >
+      sh -c '
+        python backend/manage.py makemigrations --noinput &&
+        python backend/manage.py migrate --noinput &&
+        # python backend/manage.py collectstatic --noinput &&
+        python backend/manage.py runserver 0.0.0.0:8080
+      '
+    # 環境変数を.envを使って設定
+    env_file:
+      - .env
+    networks:
+      - backend_network
+
+  frontend:
+    tty: true
+    container_name: front-container
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - ./frontend:/code/frontend
+      - talkAppM1_node_modules:/code/frontend/node_modules
+    command: sh -c "cd frontend && npm install &&WATCHPACK_POLLING=true npm start"
+
+    ports:
+      - "3000:3000"
+
+networks:
+  backend_network:
+    driver: bridge
+
+volumes: 
+  talkAppM1_node_modules:
