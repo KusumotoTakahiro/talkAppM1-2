@@ -21,7 +21,9 @@ services:
         # python backend/manage.py collectstatic --noinput &&
         python backend/manage.py runserver 0.0.0.0:8080
       '
-    # 環境変数を.envを使って設定
+    depends_on:
+      db:
+        condition: service_healthy
     env_file:
       - .env
     networks:
@@ -37,10 +39,33 @@ services:
     volumes:
       - ./frontend:/code/frontend
       - talkAppM1_node_modules:/code/frontend/node_modules
-    command: sh -c "cd frontend && npm install &&WATCHPACK_POLLING=true npm start"
-
+    command: > 
+      sh -c '
+        cd frontend && 
+        npm install &&
+        WATCHPACK_POLLING=true npm start
+      '
     ports:
       - "3000:3000"
+
+  db:
+    container_name: database-container
+    build:
+      context: ./database
+      dockerfile: Dockerfile
+    platform: linux/amd64
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 10
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./database/db:/var/lib/mysql
+    env_file:
+      - .env
+    networks:
+      - backend_network
 
 networks:
   backend_network:

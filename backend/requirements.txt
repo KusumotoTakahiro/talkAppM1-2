@@ -2,6 +2,7 @@ Django>=3.0,<4.0
 gunicorn>=19.9.0,<20.0
 djangorestframework
 django-cors-headers
+mysqlclient==2.2.0
 
 # for developing
 autopep8==2.0.2
