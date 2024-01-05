@@ -45,3 +45,8 @@ python manage.py runserver 8080
 ```sh
 python manage.py createsuperuser
 ```
+
+現在は，
+username admin
+password asdf
+で設定されている.

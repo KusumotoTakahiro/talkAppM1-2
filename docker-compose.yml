@@ -7,13 +7,11 @@ services:
     build:
       context: ./backend
       dockerfile: /Dockerfile
-
     volumes:
       - .:/code
       - ./backend:/code/backend
-    # ローカルのポート:コンテナのポート
     ports:
-      - "8080:8080"
+      - "8080:8080" # ローカルのポート:コンテナのポート
     command: >
       sh -c '
         python backend/manage.py makemigrations --noinput &&
