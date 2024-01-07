@@ -3,12 +3,13 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
-import MenuBookIcon from '@mui/icons-material/MenuBook';
+import MenuIcon from '@mui/icons-material/Menu';
 import { useNavigate } from 'react-router-dom';
 
 import './css/App.css';
 
 import HomePage from './pages/HomePage';
+import LoginPage from './pages/LoginPage';
 import NotFound from "./pages/NotFoundPage"; 
 
 function App() {
@@ -17,16 +18,17 @@ function App() {
     <div className='App' >
       <AppBar position='sticky' style={{ color: "#e0f2f1", backgroundColor: "#3c3c3c" }} >
         <Toolbar variant='dense'>
-          <IconButton edge='start' color='inherit' aria-label='menu' onClick={() => { navigate('/')}}>
-            <MenuBookIcon/>
+          <IconButton edge='start' color='inherit' aria-label='menu'>
+            <MenuIcon />
           </IconButton>
           <Typography variant='h6' color='inherit' style={{ fontFamily:'serif' }}>
-            本Book
+            TalkApp
           </Typography>
         </Toolbar>
       </AppBar>
       <Routes>
-        <Route path="/" element={<HomePage/>} />
+        <Route path="/talk" element={<HomePage/>} />
+        <Route path="/login" element={<LoginPage />} />
         {/* <Route path="/blog/:id" element={<BlogPage />} /> */}
         <Route path="/*" element={<NotFound />} />
       </Routes>
