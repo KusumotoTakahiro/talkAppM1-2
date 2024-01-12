@@ -1,8 +1,18 @@
 Django>=3.0,<4.0
+
+#USIG
 gunicorn>=19.9.0,<20.0
+
+# DRF
 djangorestframework
 django-cors-headers
+
+# MYSQL
 mysqlclient==2.2.0
+
+# 形態素解析
+mecab-python3
+unidic-lite
 
 # for developing
 autopep8==2.0.2
