@@ -1,5 +1,5 @@
 # Pythonのイメージを指定
-FROM python:3
+FROM python:3.11
 
 # pycファイル(および__pycache__)の生成を行わないようにする
 ENV PYTHONDONTWRITEBYTECODE=1
