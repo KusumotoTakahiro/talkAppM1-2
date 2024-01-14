@@ -1,5 +1,7 @@
 import MeCab
 
+syugo = ['私', '僕', '俺', '自分']
+zyoshi = ['の', 'は', 'も', 'が']
 
 def judge_persona(node, token):
     """
@@ -13,10 +15,12 @@ def judge_persona(node, token):
     --------
     - 'is_persona' (boolean): 文章がpersonaかどうか
     """
-    if (token=='私'):
-        next = node.next.surface
-        if (next == 'の' or next == 'は'):
-            return True
+    for x in syugo:
+        if (token==x):
+            next = node.next.surface
+            for y in zyoshi:
+                if (next == y):
+                    return True
     return False
 
 
