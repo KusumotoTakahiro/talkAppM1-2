@@ -42,6 +42,7 @@ def sprit_sentences(request_data):
     sentences = []
     persona_info = {}
     sentence = ""
+    persona_info["is_persona"] = False
 
     while node:
         token = node.surface
