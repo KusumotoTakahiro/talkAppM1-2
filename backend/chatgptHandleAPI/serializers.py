@@ -16,13 +16,13 @@ class UttranceSerializer(serializers.ModelSerializer):
 
 class SystemPersonSerializer(serializers.ModelSerializer):
   class Meta:
-    models = SystemPersona
+    model = SystemPersona
     fields = '__all__'
 
 
 class UserPersonaSerializer(serializers.ModelSerializer):
   class Meta:
-    models = UserPersona
+    model = UserPersona
     fields = '__all__'
 
 

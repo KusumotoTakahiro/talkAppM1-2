@@ -46,6 +46,27 @@ const Home = () => {
     })
   }
 
+  const postUserPersona = async (message, utterance_uuid) => {
+    const baseURL = 'http://127.0.0.1:8080/api/UserPersona'
+    try {
+      await axios.post(baseURL, {
+        thread: threadInfo.uuid,
+        utterance: utterance_uuid,
+        content: message,
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization':'Token '+ sessionInfo.token, 
+        }
+      })
+      .then(res => {
+        console.log(res)
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   // uttranceInputで使う関数
   const handleSendMessage = async (message) => {
     const baseURL = 'http://127.0.0.1:8080/api/Uttrance'
@@ -60,9 +81,13 @@ const Home = () => {
           'Authorization':'Token '+ sessionInfo.token, 
         }
       })
-      .then(res => {
+      .then(async res => {
         handleGetMessage()
         setInputFlag(String(Date.now()))
+        const data = res.data
+        const user_data = data.user
+        const system_data = data.system 
+        await postUserPersona(user_data.content, user_data.uuid)
       })
       .catch(error => {
         console.log(error)

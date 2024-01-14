@@ -10,6 +10,7 @@ from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
 from functions.response_generator import create_response
+from functions.persona import sprit_sentences
 
 
 class ThreadListView(generics.ListCreateAPIView):
@@ -56,7 +57,10 @@ class UttranceListView(generics.ListCreateAPIView):
 
     headers = self.get_success_headers(user_serializer.data)
     return Response(
-      system_serializer.data, 
+      {
+        'system': system_serializer.data,
+        'user': user_serializer.data
+      },
       status=status.HTTP_201_CREATED, 
       headers=headers
     )
@@ -92,10 +96,26 @@ class UserPersonaListView(generics.ListCreateAPIView):
   serializer_class = UserPersonaSerializer
 
   def create(self, request):
-    data = request.data 
-    user_serializer =  self.get_serializer(data=data)
-    user_serializer.is_valid(raise_exception=True)
-    user_serializer.save()
+    data = request.data
+    sentences = sprit_sentences(data)
+    headers = None
+    for sentence in sentences:
+      print(sentence)
+      if (sentence['is_persona']):
+        processed_data = {
+          'thread': data['thread'],
+          'utterance': data['utterance'],
+          'persona': sentence['sentence'],
+        }
+        user_serializer =  self.get_serializer(data=processed_data)
+        user_serializer.is_valid(raise_exception=True)
+        user_serializer.save()
+        headers = self.get_success_headers(user_serializer.data)
+    return Response(
+      {},
+      status=status.HTTP_201_CREATED, 
+      headers=headers
+    )
 
 
 
