@@ -25,7 +25,7 @@ def create_response(request_data):
     """
     
     return {
-        'content': 'Systemからの応答',
+        'content': 'こんにちは，僕はキャタローです．',
         'talker': 'system',
         'thread': request_data['thread']
     }

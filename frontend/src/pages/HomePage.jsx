@@ -46,8 +46,7 @@ const Home = () => {
     })
   }
 
-  const postUserPersona = async (message, utterance_uuid) => {
-    const baseURL = 'http://127.0.0.1:8080/api/UserPersona'
+  const postPersona = async (baseURL, message, utterance_uuid) => {
     try {
       await axios.post(baseURL, {
         thread: threadInfo.uuid,
@@ -69,9 +68,9 @@ const Home = () => {
 
   // uttranceInputで使う関数
   const handleSendMessage = async (message) => {
-    const baseURL = 'http://127.0.0.1:8080/api/Uttrance'
+    const baseURL = 'http://127.0.0.1:8080/api'
     try {
-      await axios.post(baseURL, {
+      await axios.post(baseURL+'/Uttrance', {
         content: message,
         talker: 'user',
         thread: threadInfo.uuid,
@@ -86,8 +85,9 @@ const Home = () => {
         setInputFlag(String(Date.now()))
         const data = res.data
         const user_data = data.user
-        const system_data = data.system 
-        await postUserPersona(user_data.content, user_data.uuid)
+        const system_data = data.system
+        await postPersona(baseURL+'/UserPersona', user_data.content, user_data.uuid)
+        await postPersona(baseURL+'/SystemPersona', system_data.content, system_data.uuid)
       })
       .catch(error => {
         console.log(error)

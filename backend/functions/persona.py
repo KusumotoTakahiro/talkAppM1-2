@@ -44,22 +44,25 @@ def sprit_sentences(request_data):
     tagger = MeCab.Tagger()
     node   = tagger.parseToNode(uttrance)
     sentences = []
-    persona_info = {}
+    is_persona = False
     sentence = ""
-    persona_info["is_persona"] = False
 
     while node:
         token = node.surface
         sentence += token
-        # persona文に該当すればis_persona=Trueで登録
         if (judge_persona(node, token)):
-            persona_info["is_persona"] = True
+            is_persona = True
         if (token=='.' or token=='。' or token=='．'):
-            persona_info["sentence"] = sentence
-            sentences.append(persona_info)
+            sentences.append({
+                'sentence': sentence,
+                'is_persona': is_persona,
+            })
+            is_persona = False
             sentence = ""
         node = node.next
-    if len(sentences) == 0:
-        persona_info["sentence"] = sentence
-        sentences.append(persona_info)
+    if sentences != 0:
+        sentences.append({
+            'sentence': sentence,
+            'is_persona': is_persona,
+        })
     return sentences

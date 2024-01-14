@@ -78,10 +78,26 @@ class SystemPersonaListView(generics.ListCreateAPIView):
   serializer_class = SystemPersonSerializer
 
   def create(self, request):
-    data = request.data 
-    user_serializer =  self.get_serializer(data=data)
-    user_serializer.is_valid(raise_exception=True)
-    user_serializer.save()
+    data = request.data
+    sentences = sprit_sentences(data)
+    headers = None
+    for sentence in sentences:
+      if (sentence['is_persona']):
+        processed_data = {
+          'thread': data['thread'],
+          'utterance': data['utterance'],
+          'persona': sentence['sentence'],
+          'similarity': 0 #本来はここを計算する．もしくは固定値にする．
+        }
+        system_serializer =  self.get_serializer(data=processed_data)
+        system_serializer.is_valid(raise_exception=True)
+        system_serializer.save()
+        headers = self.get_success_headers(system_serializer.data)
+    return Response(
+      {},
+      status=status.HTTP_201_CREATED, 
+      headers=headers
+    )
 
 
 
