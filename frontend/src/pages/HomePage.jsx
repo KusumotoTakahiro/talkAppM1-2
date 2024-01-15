@@ -149,6 +149,7 @@ const Home = () => {
       direction="row"
       justifyContent="center"
       alignItems="center"
+      style={{ height: '90vh' }}
     >
       <Grid item xs={6} md={6}>
         <Grid 
@@ -157,15 +158,15 @@ const Home = () => {
           justifyContent="center"
           alignItems="center"
         > 
-          <Grid item xs={12} md={12}>
+          <Grid item xs={12} md={12} >
             <Cataro inputInfo={ {'createdat': createdat, 'utterance': utterance} }/>
           </Grid>
-          <Grid item xs={12} md={12}>
+          <Grid item xs={12} md={12} >
             <UttranceInput  onSendMessage={handleSendMessage}/>
           </Grid>
         </Grid>
       </Grid>
-      <Grid item xs={6} md={6} style={{ overflowY: 'auto', maxHeight: '90vh' }}>
+      <Grid item xs={6} md={6} sx={{ overflowY: 'auto', maxHeight: '90vh' }} >
         <PersonaInfo personaInfo={{'personaInfo':userPersonaInfo, 'name':'ユーザー'}}></PersonaInfo>
         <PersonaInfo personaInfo={{'personaInfo':systemPersonaInfo, 'name':'システム'}}></PersonaInfo>
         <TalkLog utterances={{'utterances': uttrances, 'name': ''}}/>
