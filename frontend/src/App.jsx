@@ -18,7 +18,7 @@ function App() {
     <div className='App' >
       <AppBar position='sticky' style={{ color: "#e0f2f1", backgroundColor: "#3c3c3c" }} >
         <Toolbar variant='dense'>
-          <IconButton edge='start' color='inherit' aria-label='menu'>
+          <IconButton edge='start' color='inherit' aria-label='menu' onClick={()=>{navigate('/login')}}>
             <MenuIcon />
           </IconButton>
           <Typography variant='h6' color='inherit' style={{ fontFamily:'serif' }}>
