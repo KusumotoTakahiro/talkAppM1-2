@@ -71,20 +71,14 @@ class UttranceListView(generics.ListCreateAPIView):
     page = self.paginate_queryset(queryset)
     if page is not None:
       serializer = self.get_serializer(page, many=True)
-      data = serializer.data
-      redata = []
-      for d in data:
-        if (str(d['thread']) == thread):
-          redata.append(d)
-      return self.get_paginated_response(redata)
+      redata = filter_by_thread(serializer.data, thread)
+      sorted_deta = sorted_by_created(redata)
+      return self.get_paginated_response(sorted_deta)
 
     serializer = self.get_serializer(queryset, many=True)
-    data = serializer.data
-    redata = []
-    for d in data:
-      if (str(d['thread']) == request.query_params.get('thread')):
-        redata.append(d)
-    return Response(redata)
+    redata = filter_by_thread(serializer.data, thread)
+    sorted_deta = sorted_by_created(redata)
+    return Response(sorted_deta)
 
 
 
@@ -119,6 +113,19 @@ class SystemPersonaListView(generics.ListCreateAPIView):
       status=status.HTTP_201_CREATED, 
       headers=headers
     )
+  
+  def list(self, request):
+    queryset = self.filter_queryset(self.get_queryset())
+    thread = request.query_params.get('thread')
+    page = self.paginate_queryset(queryset)
+    if page is not None:
+      serializer = self.get_serializer(page, many=True)
+      redata = filter_by_thread(serializer.data, thread)
+      return self.get_paginated_response(redata)
+
+    serializer = self.get_serializer(queryset, many=True)
+    redata = filter_by_thread(serializer.data, thread)
+    return Response(redata)
 
 
 
@@ -154,9 +161,33 @@ class UserPersonaListView(generics.ListCreateAPIView):
       headers=headers
     )
 
+  def list(self, request):
+    queryset = self.filter_queryset(self.get_queryset())
+    thread = request.query_params.get('thread')
+    page = self.paginate_queryset(queryset)
+    if page is not None:
+      serializer = self.get_serializer(page, many=True)
+      redata = filter_by_thread(serializer.data, thread)
+      return self.get_paginated_response(redata)
+
+    serializer = self.get_serializer(queryset, many=True)
+    redata = filter_by_thread(serializer.data, thread)
+    return Response(redata)
+
 
 
 class UserPersonaDetailView(generics.RetrieveUpdateDestroyAPIView):
   queryset = UserPersona.objects.all()
   serializer_class = UserPersonaSerializer
 
+
+def filter_by_thread(serializer_data, thread):
+  redata = []
+  for data in serializer_data:
+    if (str(data['thread']) == thread):
+      redata.append(data)
+  return redata
+
+def sorted_by_created(redata):
+  sorted_data = sorted(redata, key=lambda s: s['created_at'])
+  return sorted_data
