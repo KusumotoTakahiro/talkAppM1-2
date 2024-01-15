@@ -15,16 +15,6 @@ const Home = () => {
   const [inputFlag, setInputFlag] = React.useState("0")
 
   React.useEffect(() => {
-    // この形で情報が取れる
-    axios.get("http://127.0.0.1:8080/account/accounts/", {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization':'Token '+ sessionInfo.token, 
-      }
-    })
-    .then(res=>{
-      console.log(res);
-    })
     startThread()
   }, [])
 
@@ -106,9 +96,13 @@ const Home = () => {
         headers: {
           'Content-Type': 'application/json',
           'Authorization':'Token '+ sessionInfo.token, 
-        }
+        },
+        params: {
+          thread: threadInfo.uuid
+        },
       }).then((res) => {
         setUttrances(res.data);
+        console.log(uttrances)
       });
     }
     catch (error) {

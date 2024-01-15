@@ -64,6 +64,27 @@ class UttranceListView(generics.ListCreateAPIView):
       status=status.HTTP_201_CREATED, 
       headers=headers
     )
+  
+  def list(self, request):
+    queryset = self.filter_queryset(self.get_queryset())
+    thread = request.query_params.get('thread')
+    page = self.paginate_queryset(queryset)
+    if page is not None:
+      serializer = self.get_serializer(page, many=True)
+      data = serializer.data
+      redata = []
+      for d in data:
+        if (str(d['thread']) == thread):
+          redata.append(d)
+      return self.get_paginated_response(redata)
+
+    serializer = self.get_serializer(queryset, many=True)
+    data = serializer.data
+    redata = []
+    for d in data:
+      if (str(d['thread']) == request.query_params.get('thread')):
+        redata.append(d)
+    return Response(redata)
 
 
 
