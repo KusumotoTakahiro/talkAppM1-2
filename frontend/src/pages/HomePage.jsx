@@ -12,7 +12,8 @@ const Home = () => {
   const [sessionInfo, setSessionInfo] = React.useState(location.state)
   const [threadInfo, setThreadInfo] = React.useState(null)
   const [uttrances, setUttrances] = React.useState(null)
-  const [inputFlag, setInputFlag] = React.useState("0")
+  const [utterance, setUtterance] = React.useState("")
+  const [createdat, setCreatedat] = React.useState("0")
 
   React.useEffect(() => {
     startThread()
@@ -71,13 +72,14 @@ const Home = () => {
         }
       })
       .then(async res => {
-        handleGetMessage()
-        setInputFlag(String(Date.now()))
         const data = res.data
         const user_data = data.user
         const system_data = data.system
+        setUtterance(system_data.content)
+        setCreatedat(String(Date.now()))
         await postPersona(baseURL+'/UserPersona', user_data.content, user_data.uuid)
         await postPersona(baseURL+'/SystemPersona', system_data.content, system_data.uuid)
+        handleGetMessage()
       })
       .catch(error => {
         console.log(error)
@@ -119,7 +121,7 @@ const Home = () => {
       alignItems="center"
     >
       <Grid item xs={12} md={12}>
-        <Cataro inputFlag={ inputFlag }/>
+        <Cataro inputInfo={ {'createdat': createdat, 'utterance': utterance} }/>
       </Grid>
       <Grid item xs={12} md={12}>
         <UttranceInput  onSendMessage={handleSendMessage}/>
