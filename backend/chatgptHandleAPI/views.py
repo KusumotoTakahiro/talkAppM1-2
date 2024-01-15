@@ -72,11 +72,13 @@ class UttranceListView(generics.ListCreateAPIView):
     if page is not None:
       serializer = self.get_serializer(page, many=True)
       redata = filter_by_thread(serializer.data, thread)
-      return self.get_paginated_response(redata)
+      sorted_deta = sorted_by_created(redata)
+      return self.get_paginated_response(sorted_deta)
 
     serializer = self.get_serializer(queryset, many=True)
     redata = filter_by_thread(serializer.data, thread)
-    return Response(redata)
+    sorted_deta = sorted_by_created(redata)
+    return Response(sorted_deta)
 
 
 
@@ -185,3 +187,7 @@ def filter_by_thread(serializer_data, thread):
     if (str(data['thread']) == thread):
       redata.append(data)
   return redata
+
+def sorted_by_created(redata):
+  sorted_data = sorted(redata, key=lambda s: s['created_at'])
+  return sorted_data

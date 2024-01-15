@@ -5,6 +5,7 @@ import { useLocation } from 'react-router-dom';
 import UttranceInput from '../components/uttranceInput'
 import Cataro from '../components/cataro';
 import PersonaInfo from '../components/personaInfo';
+import TalkLog from '../components/talklog';
 import Grid from '@mui/material/Grid';
 
 
@@ -164,9 +165,10 @@ const Home = () => {
           </Grid>
         </Grid>
       </Grid>
-      <Grid item xs={6} md={6}>
+      <Grid item xs={6} md={6} style={{ overflowY: 'auto', maxHeight: '90vh' }}>
         <PersonaInfo personaInfo={{'personaInfo':userPersonaInfo, 'name':'ユーザー'}}></PersonaInfo>
         <PersonaInfo personaInfo={{'personaInfo':systemPersonaInfo, 'name':'システム'}}></PersonaInfo>
+        <TalkLog utterances={{'utterances': uttrances, 'name': ''}}/>
       </Grid>
     </Grid>
     </>
