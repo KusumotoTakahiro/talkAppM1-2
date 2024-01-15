@@ -4,7 +4,9 @@ import axios from "axios";
 import { useLocation } from 'react-router-dom';
 import UttranceInput from '../components/uttranceInput'
 import Cataro from '../components/cataro';
+import PersonaInfo from '../components/personaInfo';
 import Grid from '@mui/material/Grid';
+
 
 
 const Home = () => {
@@ -14,6 +16,8 @@ const Home = () => {
   const [uttrances, setUttrances] = React.useState(null)
   const [utterance, setUtterance] = React.useState("")
   const [createdat, setCreatedat] = React.useState("0")
+  const [userPersonaInfo, setUserPersonaInfo] = React.useState(null)
+  const [systemPersonaInfo, setSystemPersonaInfo] = React.useState(null)
 
   React.useEffect(() => {
     startThread()
@@ -79,6 +83,8 @@ const Home = () => {
         setCreatedat(String(Date.now()))
         await postPersona(baseURL+'/UserPersona', user_data.content, user_data.uuid)
         await postPersona(baseURL+'/SystemPersona', system_data.content, system_data.uuid)
+        await getPersonaInfo(baseURL+'/UserPersona', true)
+        await getPersonaInfo(baseURL+'/SystemPersona', false)
         handleGetMessage()
       })
       .catch(error => {
@@ -104,11 +110,34 @@ const Home = () => {
         },
       }).then((res) => {
         setUttrances(res.data);
-        console.log(uttrances)
       });
     }
     catch (error) {
-      console.log(error)
+      console.log(error);
+    }
+  }
+
+  const getPersonaInfo = async (url, isUser) => {
+    try {
+      await axios.get(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization':'Token '+ sessionInfo.token, 
+        },
+        params: {
+          thread: threadInfo.uuid
+        },
+      }).then((res) => {
+        if (isUser) {
+          setUserPersonaInfo(res.data);
+        }
+        else {
+          setSystemPersonaInfo(res.data);
+        }
+      });
+    }
+    catch (error) {
+      console.log(error);
     }
   }
 
@@ -116,15 +145,28 @@ const Home = () => {
     <>
     <Grid 
       container 
-      direction="column"
+      direction="row"
       justifyContent="center"
       alignItems="center"
     >
-      <Grid item xs={12} md={12}>
-        <Cataro inputInfo={ {'createdat': createdat, 'utterance': utterance} }/>
+      <Grid item xs={6} md={6}>
+        <Grid 
+          container 
+          direction="column"
+          justifyContent="center"
+          alignItems="center"
+        > 
+          <Grid item xs={12} md={12}>
+            <Cataro inputInfo={ {'createdat': createdat, 'utterance': utterance} }/>
+          </Grid>
+          <Grid item xs={12} md={12}>
+            <UttranceInput  onSendMessage={handleSendMessage}/>
+          </Grid>
+        </Grid>
       </Grid>
-      <Grid item xs={12} md={12}>
-        <UttranceInput  onSendMessage={handleSendMessage}/>
+      <Grid item xs={6} md={6}>
+        <PersonaInfo personaInfo={{'personaInfo':userPersonaInfo, 'name':'ユーザー'}}></PersonaInfo>
+        <PersonaInfo personaInfo={{'personaInfo':systemPersonaInfo, 'name':'システム'}}></PersonaInfo>
       </Grid>
     </Grid>
     </>

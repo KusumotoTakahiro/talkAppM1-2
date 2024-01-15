@@ -15,7 +15,6 @@ const Cataro = ({ inputInfo }) => {
 
   return(
     <>
-      
       <Grid
         container
         direction="row"
