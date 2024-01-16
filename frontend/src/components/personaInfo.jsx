@@ -45,7 +45,7 @@ const PersonaInfo = ({personaInfo}) => {
                   <TableHead>
                     <TableRow>
                       <TableCell>persona</TableCell>
-                      <TableCell>createdAt</TableCell>
+                      <TableCell align='center'>createdAt</TableCell>
                     </TableRow>
                   </TableHead>
                     <TableBody>
@@ -55,7 +55,7 @@ const PersonaInfo = ({personaInfo}) => {
                           sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                         >
                           <TableCell component="th" scope="row"> {row.persona} </TableCell>
-                          <TableCell align="right"> {row.created_at} </TableCell>
+                          <TableCell align="left"> {row.created_at} </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

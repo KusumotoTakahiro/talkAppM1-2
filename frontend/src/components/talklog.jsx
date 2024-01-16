@@ -43,9 +43,9 @@ const TalkLog = ({utterances}) => {
               <Table sx={{ minWidth: 400 }} aria-label="simple table">
                 <TableHead>
                   <TableRow>
-                    <TableCell>persona</TableCell>
                     <TableCell>talker</TableCell>
-                    <TableCell>createdAt</TableCell>
+                    <TableCell align='center'>content</TableCell>
+                    {/* <TableCell>createdAt</TableCell> */}
                   </TableRow>
                 </TableHead>
                   <TableBody>
@@ -54,9 +54,9 @@ const TalkLog = ({utterances}) => {
                         key={row.uuid}
                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                       >
-                        <TableCell component="th" scope="row"> {row.content} </TableCell>
-                        <TableCell align="right"> {row.talker} </TableCell>
-                        <TableCell align="right"> {row.created_at} </TableCell>
+                        <TableCell component="th" scope="row"> {row.talker} </TableCell>
+                        <TableCell align="left"> {row.content} </TableCell>
+                        {/* <TableCell align="right"> {row.created_at} </TableCell> */}
                       </TableRow>
                     ))}
                   </TableBody>
