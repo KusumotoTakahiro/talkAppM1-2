@@ -43,18 +43,16 @@ class UttranceListView(generics.ListCreateAPIView):
 
   def create(self, request):
     data = request.data
+    # user側のutteranceを保存
     user_serializer =  self.get_serializer(data=data)
     user_serializer.is_valid(raise_exception=True)
     user_serializer.save()
-
-    # ここにPOSTデータを加工する処理を追加(ChatGPTを通すなど)
-    processed_data = create_response(data)
-
-    # シリアライザを使って加工後のデータを保存
+    # system側のutteranceを保存
+    processed_data = create_response(data, UserPersona, SystemPersona)
     system_serializer = self.get_serializer(data=processed_data)
     system_serializer.is_valid(raise_exception=True)
     system_serializer.save()
-
+    # responseの設定
     headers = self.get_success_headers(user_serializer.data)
     return Response(
       {
