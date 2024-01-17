@@ -7,10 +7,12 @@ import Grid from '@mui/material/Grid'
 const Cataro = ({ inputInfo }) => {
   const [closeMouse, setCloseMouse] = React.useState(true)
   React.useEffect(() => {
-    setCloseMouse(false)
-    setTimeout(() => {
-      setCloseMouse(true)
-    }, 3000)
+    if (inputInfo.utterance !== '') {
+      setCloseMouse(false)
+      setTimeout(() => {
+        setCloseMouse(true)
+      }, 3000)
+    }
   }, [inputInfo.createdat]);
 
   return(
