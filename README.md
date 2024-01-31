@@ -59,15 +59,17 @@ password takahiro921
   　- backend/chagGPThandleAPI の直下も同上．
   　- .env ファイルをディレクトリの root 直下に保存．
 - 上記の作業後に docker compose up を実行する．
+- 管理者アカウントを作成（上記の createsupseruser を参照）
+- admin ページにアクセスし，管理者アカウントで一般ユーザを作成（bitwarden で共有済み）
 
 ### ※ 時々失敗することがある．だいたい DB が原因だと思うから．以下を確認してください．
+
 > <database/db ディレクトリが存在した場合>
 
 - db ディレクトリを削除．
 - コンテナ内部のキャッシュを全削除．
 - docker compose up
 - DBeaver で確認してみる．
-![dbeaver](https://github.com/KusumotoTakahiro/talkAppM1-2/assets/99956025/d252a057-0cac-434e-92c3-b9266f67a1ec)
-![dbeaver2](https://github.com/KusumotoTakahiro/talkAppM1-2/assets/99956025/e7f62365-0295-44b5-8b33-4cc42edb105a)
-![dbeaver3](https://github.com/KusumotoTakahiro/talkAppM1-2/assets/99956025/fd4833eb-6276-4206-a3f2-474e1dcd9270)
-
+  ![dbeaver](https://github.com/KusumotoTakahiro/talkAppM1-2/assets/99956025/d252a057-0cac-434e-92c3-b9266f67a1ec)
+  ![dbeaver2](https://github.com/KusumotoTakahiro/talkAppM1-2/assets/99956025/e7f62365-0295-44b5-8b33-4cc42edb105a)
+  ![dbeaver3](https://github.com/KusumotoTakahiro/talkAppM1-2/assets/99956025/fd4833eb-6276-4206-a3f2-474e1dcd9270)
