@@ -3,8 +3,8 @@
 ## 使い方
 
 - Docker Desktop を起動する
-- VSCode 左下の青いやつを押して，「Reopen in Container」を選ぶ(極力これでコーディングしてください)
-- DB を設計している models.py を変更した場合は，Dev Containers を起動しなおすか，以下のコマンドの上 2 つ実行してください
+- docker compose up 　でコンテナを立ち上げ，プログラムを実行
+- （初めての場合はページ最後尾を参照）
 
 URL<br>
 http://127.0.0.1:3000/
@@ -48,5 +48,22 @@ python manage.py createsuperuser
 
 現在は，
 username admin
-password asdf
-で設定されている.
+password takahiro921
+で設定されている.(bitwarden で管理している．一般ユーザをある)
+
+## 初めて Clone した場合
+
+- main を Clone した後を仮定する．
+- docker compose up する前に以下のファイルとディレクトリを追加する．
+  　- backend/login/の直下に migrations ディレクトリを追加し，内部に**init**.py ファイルを作成（中身は空）
+  　- backend/chagGPThandleAPI の直下も同上．
+  　- .env ファイルをディレクトリの root 直下に保存．
+- 上記の作業後に docker compose up を実行する．
+
+  ※ 時々失敗することがある．だいたい DB が原因だと思うから．以下を確認してください．
+  <database/db ディレクトリが存在した場合>
+
+- db ディレクトリを削除．
+- コンテナ内部のキャッシュを全削除．
+- docker compose up
+- DBeber で確認してみる．
