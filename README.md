@@ -55,9 +55,9 @@ password takahiro921
 
 - main を Clone した後を仮定する．
 - docker compose up する前に以下のファイルとディレクトリを追加する．
-  　- backend/login/の直下に migrations ディレクトリを追加し，内部に**init**.py ファイルを作成（中身は空）
-  　- backend/chagGPThandleAPI の直下も同上．
-  　- .env ファイルをディレクトリの root 直下に保存．
+  - backend/login/の直下に migrations ディレクトリを追加し，内部に`__init__.py` ファイルを作成（中身は空）
+  - backend/chatgptHandleAPI の直下も同上．
+  - .env ファイルをディレクトリの root 直下に保存．
 - 上記の作業後に docker compose up を実行する．
 - 管理者アカウントを作成（上記の createsupseruser を参照）
 - admin ページにアクセスし，管理者アカウントで一般ユーザを作成（bitwarden で共有済み）
