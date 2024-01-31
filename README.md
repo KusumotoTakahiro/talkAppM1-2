@@ -55,7 +55,7 @@ password takahiro921
 
 - main を Clone した後を仮定する．
 - docker compose up する前に以下のファイルとディレクトリを追加する．
-  - backend/login/の直下に migrations ディレクトリを追加し，内部に`__init__.py` ファイルを作成（中身は空）
+  - backend/login/の直下にmigrations/`__init__.py`を作成（ファイルは空で）．
   - backend/chatgptHandleAPI の直下も同上．
   - .env ファイルをディレクトリの root 直下に保存．
 - 上記の作業後に docker compose up を実行する．
