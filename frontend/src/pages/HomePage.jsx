@@ -1,19 +1,26 @@
 // 外部ライブラリ
 import * as React from 'react';
 import axios from "axios";
-import { useLocation } from 'react-router-dom';
 import UttranceInput from '../components/uttranceInput'
 import Cataro from '../components/cataro';
 import PersonaInfo from '../components/personaInfo';
 import TalkLog from '../components/talklog';
-import Grid from '@mui/material/Grid';
+import {
+  Grid,
+  Button,
+} from '@mui/material';
+import { useRecoilValue, useRecoilState } from 'recoil';
+import { userInfo } from '../atoms/userInfo';
+
+import '../css/home.scss';
 
 
 
 const Home = () => {
-  const location = useLocation()
-  const [sessionInfo, setSessionInfo] = React.useState(location.state)
-  const [threadInfo, setThreadInfo] = React.useState(null)
+  // Recoil経由で保存しているuserのlogin時発行のtoken
+  const sessionToken = useRecoilValue(userInfo.session_token)
+  const userId = useRecoilValue(userInfo.user_id)
+  const [nowThread, setNowThread] = useRecoilState(userInfo.now_thread)
   const [uttrances, setUttrances] = React.useState(null)
   const [utterance, setUtterance] = React.useState("")
   const [createdat, setCreatedat] = React.useState("0")
@@ -21,37 +28,63 @@ const Home = () => {
   const [systemPersonaInfo, setSystemPersonaInfo] = React.useState(null)
 
   React.useEffect(() => {
-    startThread()
+    getThreads()
   }, [])
 
-  // マウント直後に開始するThread生成関数
-  const startThread = async () => {
+  const makeThread = async () => {
     const baseURL = 'http://127.0.0.1:8080/api/thread'
     const now = Date.now()
     axios.post(baseURL, {
-      title: String(now)
+      title: String(now),
+      user: userId,
     }, {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization':'Token '+ sessionInfo.token, 
+        'Authorization':'Token '+ sessionToken, 
       }
     })
     .then(res => {
       const threadInfo = res.data
-      setThreadInfo(threadInfo)
+      setNowThread(threadInfo.uuid)
     })
+  }
+
+  const getThreads = async () => {
+    const baseURL = 'http://127.0.0.1:8080/api/thread'
+    try {
+      await axios.get(baseURL, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization':'Token '+ sessionToken, 
+        },
+        params: {
+          user : userId,
+        },
+      }).then((res) => {
+        const threads = res.data;
+        if (threads.length > 0) {
+          setNowThread(threads[0].uuid);
+        }
+        else {
+          setNowThread('');
+        }
+      });
+    }
+    catch (error) {
+      console.log(error);
+    }
   }
 
   const postPersona = async (baseURL, message, utterance_uuid) => {
     try {
       await axios.post(baseURL, {
-        thread: threadInfo.uuid,
+        thread: nowThread,
         utterance: utterance_uuid,
         content: message,
       }, {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization':'Token '+ sessionInfo.token, 
+          'Authorization':'Token '+ sessionToken, 
         }
       })
       .then(res => {
@@ -69,11 +102,11 @@ const Home = () => {
       await axios.post(baseURL+'/Uttrance', {
         content: message,
         talker: 'user',
-        thread: threadInfo.uuid,
+        thread: nowThread,
       }, {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization':'Token '+ sessionInfo.token, 
+          'Authorization':'Token '+ sessionToken, 
         }
       })
       .then(async res => {
@@ -104,10 +137,10 @@ const Home = () => {
       await axios.get(baseURL, {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization':'Token '+ sessionInfo.token, 
+          'Authorization':'Token '+ sessionToken, 
         },
         params: {
-          thread: threadInfo.uuid
+          thread: nowThread
         },
       }).then((res) => {
         setUttrances(res.data);
@@ -123,10 +156,10 @@ const Home = () => {
       await axios.get(url, {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization':'Token '+ sessionInfo.token, 
+          'Authorization':'Token '+ sessionToken, 
         },
         params: {
-          thread: threadInfo.uuid
+          thread: nowThread
         },
       }).then((res) => {
         if (isUser) {
@@ -144,34 +177,46 @@ const Home = () => {
 
   return (
     <>
-    <Grid 
-      container 
-      direction="row"
-      justifyContent="center"
-      alignItems="center"
-      style={{ height: '90vh' }}
-    >
-      <Grid item xs={6} md={6}>
-        <Grid 
-          container 
-          direction="column"
-          justifyContent="center"
-          alignItems="center"
-        > 
-          <Grid item xs={12} md={12} >
-            <Cataro inputInfo={ {'createdat': createdat, 'utterance': utterance} }/>
-          </Grid>
-          <Grid item xs={12} md={12} >
-            <UttranceInput  onSendMessage={handleSendMessage}/>
+    { 
+      nowThread === '' ? 
+      <>
+      <div className="center-container">
+        <div className="content">
+          <p className='para'>過去の雑談履歴はありません。</p>
+          <Button className='custom-button' onClick={makeThread}>雑談を開始する</Button>
+        </div>
+      </div>
+      </> 
+      : 
+      <Grid 
+        container 
+        direction="row"
+        justifyContent="center"
+        alignItems="center"
+        style={{ height: '90vh' }}
+      >
+        <Grid item xs={6} md={6}>
+          <Grid 
+            container 
+            direction="column"
+            justifyContent="center"
+            alignItems="center"
+          > 
+            <Grid item xs={12} md={12} >
+              <Cataro inputInfo={ {'createdat': createdat, 'utterance': utterance} }/>
+            </Grid>
+            <Grid item xs={12} md={12} >
+              <UttranceInput  onSendMessage={handleSendMessage}/>
+            </Grid>
           </Grid>
         </Grid>
+        {/* <Grid item xs={6} md={6} sx={{ overflowY: 'auto', maxHeight: '90vh' }} >
+          <PersonaInfo personaInfo={{'personaInfo':userPersonaInfo, 'name':'ユーザー'}}></PersonaInfo>
+          <PersonaInfo personaInfo={{'personaInfo':systemPersonaInfo, 'name':'システム'}}></PersonaInfo>
+          <TalkLog utterances={{'utterances': uttrances, 'name': ''}}/>
+        </Grid> */}
       </Grid>
-      <Grid item xs={6} md={6} sx={{ overflowY: 'auto', maxHeight: '90vh' }} >
-        <PersonaInfo personaInfo={{'personaInfo':userPersonaInfo, 'name':'ユーザー'}}></PersonaInfo>
-        <PersonaInfo personaInfo={{'personaInfo':systemPersonaInfo, 'name':'システム'}}></PersonaInfo>
-        <TalkLog utterances={{'utterances': uttrances, 'name': ''}}/>
-      </Grid>
-    </Grid>
+    }
     </>
   );
 };

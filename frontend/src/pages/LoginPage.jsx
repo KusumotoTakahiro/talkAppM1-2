@@ -12,6 +12,8 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
+import { useRecoilState } from 'recoil';
+import { userInfo } from '../atoms/userInfo';
 
 
 
@@ -33,6 +35,8 @@ function Copyright(props) {
 const defaultTheme = createTheme();
 
 const Login = () => {
+  const [sessionToken, setSessionToken] = useRecoilState(userInfo.session_token)
+  const [userId, setUserId] = useRecoilState(userInfo.user_id)
   const navigate = useNavigate()
 
   const handleSubmit = (event) => {
@@ -44,10 +48,11 @@ const Login = () => {
     })
     .then((res) => {
       // login成功
-      const resData = res.data;
-      const token = resData.token;
-      // replace trueで指定したページに完全に置き換え，以前のページに戻れなくする
-      navigate("/talk", {state: {token,}, replace:true})
+      const sessionInfo = res.data;
+      setSessionToken(sessionInfo.token);
+      setUserId(sessionInfo.user_id);
+      // replace=trueで指定したページに完全に置き換え，以前のページに戻れなくする
+      navigate("/talk", {replace:true})
     })
     .catch((err) => {
       // login失敗
