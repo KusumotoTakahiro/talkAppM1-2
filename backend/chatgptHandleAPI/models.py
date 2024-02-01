@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from login.models import CustomUser
 
 
 class Thread(models.Model):
@@ -14,6 +15,7 @@ class Thread(models.Model):
   uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   created_at = models.DateTimeField(auto_now=False, auto_now_add=True)
   title = models.TextField(null=True)
+  user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
 
 
 
