@@ -70,6 +70,4 @@ password takahiro921
 - コンテナ内部のキャッシュを全削除．
 - docker compose up
 - DBeaver で確認してみる．
-  ![dbeaver](https://github.com/KusumotoTakahiro/talkAppM1-2/assets/99956025/d252a057-0cac-434e-92c3-b9266f67a1ec)
-  ![dbeaver2](https://github.com/KusumotoTakahiro/talkAppM1-2/assets/99956025/e7f62365-0295-44b5-8b33-4cc42edb105a)
-  ![dbeaver3](https://github.com/KusumotoTakahiro/talkAppM1-2/assets/99956025/fd4833eb-6276-4206-a3f2-474e1dcd9270)
+- ![db_er1](https://github.com/KusumotoTakahiro/talkAppM1-2/assets/99956025/90344c68-ef4e-4dd8-bb38-bcbf0f233505)
