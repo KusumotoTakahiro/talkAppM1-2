@@ -28,6 +28,21 @@ class ThreadListView(generics.ListCreateAPIView):
       status=status.HTTP_201_CREATED, 
       headers=headers
     )
+  
+  def list(self, request):
+    queryset = self.filter_queryset(self.get_queryset())
+    userid = request.query_params.get('user')
+    page = self.paginate_queryset(queryset)
+    if page is not None:
+      serializer = self.get_serializer(page, many=True)
+      redata = filter_by_userid(serializer.data, userid)
+      sorted_deta = sorted_by_created(redata)
+      return self.get_paginated_response(sorted_deta)
+
+    serializer = self.get_serializer(queryset, many=True)
+    redata = filter_by_userid(serializer.data, userid)
+    sorted_deta = sorted_by_created(redata)
+    return Response(sorted_deta)
 
 
 
@@ -183,6 +198,13 @@ def filter_by_thread(serializer_data, thread):
   redata = []
   for data in serializer_data:
     if (str(data['thread']) == thread):
+      redata.append(data)
+  return redata
+
+def filter_by_userid(serializer_data, userid):
+  redata = []
+  for data in serializer_data:
+    if (str(data['user']) == userid):
       redata.append(data)
   return redata
 
