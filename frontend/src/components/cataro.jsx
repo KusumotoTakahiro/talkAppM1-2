@@ -33,8 +33,8 @@ const Cataro = ({ inputInfo }) => {
         <Grid item xs={6} md={6}>
           {
             closeMouse === true ? 
-              <img src={mouse_close_cat} width={600} /> : 
-              <img src={mouse_open_cat} width={600} />
+              <img src={mouse_close_cat} width={500} /> : 
+              <img src={mouse_open_cat} width={500} />
           }
         </Grid>
       </Grid>

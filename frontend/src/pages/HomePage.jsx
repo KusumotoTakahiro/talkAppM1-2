@@ -193,7 +193,7 @@ const Home = () => {
         direction="row"
         justifyContent="center"
         alignItems="center"
-        style={{ height: '90vh' }}
+        style={{ height: '85vh' }}
       >
         <Grid item xs={6} md={6}>
           <Grid 
