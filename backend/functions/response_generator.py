@@ -53,7 +53,7 @@ def create_response(request_data, UserPersona, SystemPersona):
             now_user_string = '\n'.join(now_user)
             now_system_string = '\n'.join(now_system)
             prompt = f"""
-                You are a agent who does the chatting in your daily life.
+                You are an agent who does the chatting in your daily life.
 
                 The output should be a markdown code snippet formatted in the following schema in Japanese:
 
