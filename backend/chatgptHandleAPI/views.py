@@ -50,7 +50,26 @@ class ThreadDetailView(generics.RetrieveUpdateDestroyAPIView):
   queryset = Thread.objects.all()
   serializer_class = ThreadSerializer
 
-
+  def update(self, request, *args, **kwargs):
+    # リクエストされたリソースのインスタンスを取得
+    instance = self.get_object()
+    
+    # partialパラメータがリクエストに含まれているか確認し、
+    # それに基づいてシリアライザを作成
+    partial = kwargs.pop('partial', True)
+    serializer = self.get_serializer(instance, data=request.data, partial=partial)
+    
+    # シリアライザが有効かどうかを確認し、無効な場合はエラーを発生させる
+    serializer.is_valid(raise_exception=True)
+    
+    # インスタンスの一部を更新（例: titleを上書き）
+    instance.title = request.data.get('title', instance.title)
+    
+    # シリアライザを使用して更新処理を実行
+    self.perform_update(serializer)
+    
+    # 更新されたデータを含むレスポンスを返す
+    return Response(serializer.data)
 
 class UttranceListView(generics.ListCreateAPIView):
   queryset = Utterance.objects.all()
