@@ -6,7 +6,7 @@ services:
     container_name: back-container
     build:
       context: ./backend
-      dockerfile: /Dockerfile
+      dockerfile: Dockerfile
     volumes:
       - .:/code
       - ./backend:/code/backend
@@ -16,8 +16,9 @@ services:
       sh -c '
         python backend/manage.py makemigrations --noinput &&
         python backend/manage.py migrate --noinput &&
-        # python backend/manage.py collectstatic --noinput &&
-        python backend/manage.py runserver 0.0.0.0:8080
+        python backend/manage.py collectstatic --noinput &&
+        cd backend &&
+        gunicorn -w 4 -b 0.0.0.0:8080 backend.wsgi:application
       '
     depends_on:
       db:
@@ -37,14 +38,27 @@ services:
     volumes:
       - ./frontend:/code/frontend
       - talkAppM1_node_modules:/code/frontend/node_modules
-    command: > 
-      sh -c '
-        cd frontend && 
-        npm install &&
-        WATCHPACK_POLLING=true npm start
-      '
+    # command: > 
+    #   sh -c '
+    #     cd frontend && 
+    #     npm install &&
+    #     WATCHPACK_POLLING=true npm start
+    #     # npm run build # 本番時のbuildコマンド
+    #   '
+    # ports:
+    #   - "3000:3000"
+  
+  nginx:
+    image: nginx
+    container_name: nginx
     ports:
-      - "3000:3000"
+      - 3000:80
+    volumes:
+      - ./frontend/build:/var/www/html
+      - ./nginx/:/etc/nginx/conf.d/
+    depends_on:
+      - frontend
+
 
   db:
     container_name: database-container
