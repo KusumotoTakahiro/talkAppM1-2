@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from login.models import CustomUser
 
 
 class Thread(models.Model):
@@ -9,11 +10,15 @@ class Thread(models.Model):
   Args:
     uuid(uuid): 対話識別のためのUUID
     createdAt(DateTime): threadの作成日時
-    title(string): threadのタイトル,任意(現状は使用予定未定)
+    title(string): threadのタイトル,任意(生成時に時刻を入れてる)
+    user(CustomUser): Threadを所有しているユーザ
+    prompt_type(string): Threadで使うpromptを指定するフィールド
   """
   uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   created_at = models.DateTimeField(auto_now=False, auto_now_add=True)
   title = models.TextField(null=True)
+  user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+  prompt_type = models.CharField(max_length=30, null=True)
 
 
 

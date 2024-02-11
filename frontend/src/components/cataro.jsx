@@ -11,7 +11,7 @@ const Cataro = ({ inputInfo }) => {
       setCloseMouse(false)
       setTimeout(() => {
         setCloseMouse(true)
-      }, 3000)
+      }, 7000)
     }
   }, [inputInfo.createdat]);
 
@@ -33,8 +33,8 @@ const Cataro = ({ inputInfo }) => {
         <Grid item xs={6} md={6}>
           {
             closeMouse === true ? 
-              <img src={mouse_close_cat} width={400} /> : 
-              <img src={mouse_open_cat} width={400} />
+              <img src={mouse_close_cat} width={500} /> : 
+              <img src={mouse_open_cat} width={500} />
           }
         </Grid>
       </Grid>

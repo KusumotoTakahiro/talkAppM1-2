@@ -22,12 +22,28 @@ class ThreadListView(generics.ListCreateAPIView):
     user_serializer =  self.get_serializer(data=data)
     user_serializer.is_valid(raise_exception=True)
     user_serializer.save()
+    print(user_serializer.data)
     headers = self.get_success_headers(user_serializer.data)
     return Response(
       user_serializer.data, 
       status=status.HTTP_201_CREATED, 
       headers=headers
     )
+  
+  def list(self, request):
+    queryset = self.filter_queryset(self.get_queryset())
+    userid = request.query_params.get('user')
+    page = self.paginate_queryset(queryset)
+    if page is not None:
+      serializer = self.get_serializer(page, many=True)
+      redata = filter_by_userid(serializer.data, userid)
+      sorted_deta = sorted_by_created(redata)
+      return self.get_paginated_response(sorted_deta)
+
+    serializer = self.get_serializer(queryset, many=True)
+    redata = filter_by_userid(serializer.data, userid)
+    sorted_deta = sorted_by_created(redata)
+    return Response(sorted_deta)
 
 
 
@@ -35,7 +51,27 @@ class ThreadDetailView(generics.RetrieveUpdateDestroyAPIView):
   queryset = Thread.objects.all()
   serializer_class = ThreadSerializer
 
-
+  def update(self, request, *args, **kwargs):
+    # リクエストされたリソースのインスタンスを取得
+    instance = self.get_object()
+    
+    # partialパラメータがリクエストに含まれているか確認し、
+    # それに基づいてシリアライザを作成
+    partial = kwargs.pop('partial', True)
+    serializer = self.get_serializer(instance, data=request.data, partial=partial)
+    
+    # シリアライザが有効かどうかを確認し、無効な場合はエラーを発生させる
+    serializer.is_valid(raise_exception=True)
+    
+    # インスタンスの一部を更新（例: titleを上書き）
+    instance.title = request.data.get('title', instance.title)
+    instance.prompt_type = request.data.get('prompt_type', instance.prompt_type)
+    
+    # シリアライザを使用して更新処理を実行
+    self.perform_update(serializer)
+    
+    # 更新されたデータを含むレスポンスを返す
+    return Response(serializer.data)
 
 class UttranceListView(generics.ListCreateAPIView):
   queryset = Utterance.objects.all()
@@ -48,7 +84,7 @@ class UttranceListView(generics.ListCreateAPIView):
     user_serializer.is_valid(raise_exception=True)
     user_serializer.save()
     # system側のutteranceを保存
-    processed_data = create_response(data, UserPersona, SystemPersona)
+    processed_data = create_response(data, UserPersona, SystemPersona, Thread)
     system_serializer = self.get_serializer(data=processed_data)
     system_serializer.is_valid(raise_exception=True)
     system_serializer.save()
@@ -142,7 +178,7 @@ class UserPersonaListView(generics.ListCreateAPIView):
     sentences = sprit_sentences(data)
     headers = None
     for sentence in sentences:
-      print(sentence)
+      # print(sentence)
       if (sentence['is_persona']):
         processed_data = {
           'thread': data['thread'],
@@ -183,6 +219,13 @@ def filter_by_thread(serializer_data, thread):
   redata = []
   for data in serializer_data:
     if (str(data['thread']) == thread):
+      redata.append(data)
+  return redata
+
+def filter_by_userid(serializer_data, userid):
+  redata = []
+  for data in serializer_data:
+    if (str(data['user']) == userid):
       redata.append(data)
   return redata
 
