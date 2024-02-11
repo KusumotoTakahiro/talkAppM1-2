@@ -15,7 +15,7 @@ import {
   Fab,
   TextField,
 } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
+
 
 // Recoil
 import { useRecoilValue, useRecoilState } from 'recoil';
@@ -49,8 +49,13 @@ const Home = () => {
         }).then((res) => {
           const threads = res.data;
           if (threads.length > 0) {
-            setNowThread(threads[threads.length - 1].uuid);
-            setThreadTitle(threads[threads.length - 1].title);
+            if (nowThread === '') {
+              setNowThread(threads[threads.length - 1].uuid);
+              setThreadTitle(threads[threads.length - 1].title);
+            } else {
+              let thread = threads.filter(thread => thread.uuid === nowThread)
+              setThreadTitle(thread[0].title);
+            }
           }
           else {
             setNowThread('');
@@ -218,7 +223,6 @@ const Home = () => {
             fontSize: '25px',
           }}
         >
-          {/* <AddIcon/> */}
           雑談を変える
         </Fab>
       </>
