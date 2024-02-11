@@ -57,9 +57,8 @@ const Analysis = () => {
 
     // 現在のThreadの会話歴をすべて受け取る関数.
     const getTalk = async () => {
-      const baseURL = 'http://127.0.0.1:8080/api/Uttrance'
       try {
-        await axios.get(baseURL, {
+        await axios.get(baseURL+'/Uttrance', {
           headers: {
             'Content-Type': 'application/json',
             'Authorization':'Token '+ sessionToken, 
