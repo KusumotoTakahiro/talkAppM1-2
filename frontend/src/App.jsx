@@ -1,7 +1,6 @@
 // Pure React
 import * as React from 'react';
-import { Routes, Route } from "react-router-dom";
-import { useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 
 // Recoil
 import {
@@ -155,13 +154,31 @@ function App() {
         {drawerList()}
       </Drawer>
       <Routes>
-        <Route path="/talk" element={<HomePage/>} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/analysis" element={<AnalysisPage />} />
-        <Route path="/logout" element={<LogoutCheck/>} />
-        <Route path="/history" element={<History/>} />
+        <Route 
+          path="/talk" 
+          element={ sessionToken ? <HomePage/> : <Navigate replace to="/login"/> } 
+        />
+        <Route 
+          path="/login" 
+          element={<LoginPage />} 
+        />
+        <Route 
+          path="/analysis" 
+          element={ sessionToken ? <AnalysisPage/> : <Navigate replace to="/login"/> } 
+        />
+        <Route 
+          path="/logout" 
+          element={ sessionToken ? <LogoutCheck/> : <Navigate replace to="/login"/> } 
+        />
+        <Route 
+          path="/history" 
+          element={ sessionToken ? <History/> : <Navigate replace to="/login"/> } 
+        />
+        <Route 
+          path="/*" 
+          element={ sessionToken ? <NotFound /> : <Navigate replace to="/login"/> } 
+        />
         {/* <Route path="/blog/:id" element={<BlogPage />} /> */}
-        <Route path="/*" element={<NotFound />} />
       </Routes>
     </div>
   );
