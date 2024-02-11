@@ -20,7 +20,15 @@ import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxOutlinedIcon from '@mui/icons-material/CheckBoxOutlined';
 
 
-const ThreadHistoryTable =  ({threads, nowThread, handleThreadSelect}) => {
+
+const ThreadHistoryTable =  (
+    {
+      threads, 
+      nowThread, 
+      handleThreadSelect,
+    }
+  ) => {
+
   const generateTable = () => {
     return threads.map((thread, index) => (
       <Collapse key={index}>
@@ -56,17 +64,21 @@ const ThreadHistoryTable =  ({threads, nowThread, handleThreadSelect}) => {
             </ListItemAvatar>
             <ListItemText> {thread.title} </ListItemText>
             <ListItemText> {thread.created_at} </ListItemText>
+            <ListItemText> {thread.prompt_type} </ListItemText>
           </ListItemButton>
         </ListItem>
         <Divider component="li" />
       </Collapse>
     ))
   }
+
+
   return (
     <List style={{width:'60%'}}>
       <ListItem>
         <ListItemText>雑談スレッドのタイトル</ListItemText>
         <ListItemText>雑談スレッドの作成日</ListItemText>
+        <ListItemText>プロンプトタイプ</ListItemText>
       </ListItem>
       <Divider component="li" />
       <TransitionGroup>

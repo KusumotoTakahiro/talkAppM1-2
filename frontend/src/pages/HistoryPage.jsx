@@ -68,7 +68,6 @@ const History = () => {
         handleThreadSelect={handleThreadSelect}
       />
     </Box>
-    
   )
 }
 
