@@ -22,6 +22,7 @@ class ThreadListView(generics.ListCreateAPIView):
     user_serializer =  self.get_serializer(data=data)
     user_serializer.is_valid(raise_exception=True)
     user_serializer.save()
+    print(user_serializer.data)
     headers = self.get_success_headers(user_serializer.data)
     return Response(
       user_serializer.data, 
@@ -64,6 +65,7 @@ class ThreadDetailView(generics.RetrieveUpdateDestroyAPIView):
     
     # インスタンスの一部を更新（例: titleを上書き）
     instance.title = request.data.get('title', instance.title)
+    instance.prompt_type = request.data.get('prompt_type', instance.prompt_type)
     
     # シリアライザを使用して更新処理を実行
     self.perform_update(serializer)
@@ -82,7 +84,7 @@ class UttranceListView(generics.ListCreateAPIView):
     user_serializer.is_valid(raise_exception=True)
     user_serializer.save()
     # system側のutteranceを保存
-    processed_data = create_response(data, UserPersona, SystemPersona)
+    processed_data = create_response(data, UserPersona, SystemPersona, Thread)
     system_serializer = self.get_serializer(data=processed_data)
     system_serializer.is_valid(raise_exception=True)
     system_serializer.save()
@@ -176,7 +178,7 @@ class UserPersonaListView(generics.ListCreateAPIView):
     sentences = sprit_sentences(data)
     headers = None
     for sentence in sentences:
-      print(sentence)
+      # print(sentence)
       if (sentence['is_persona']):
         processed_data = {
           'thread': data['thread'],
