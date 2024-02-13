@@ -70,8 +70,10 @@ services:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
       timeout: 10s
       retries: 10
-    ports:
-      - "3306:3306"
+    # ports:
+    #   - "3306:3306"
+    expose:
+      - 3306
     volumes:
       - ./database/db:/var/lib/mysql
     env_file:
