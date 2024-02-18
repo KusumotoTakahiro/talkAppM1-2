@@ -2,7 +2,8 @@
 .env
 
 # ignore migration files
-migrations/
+#migrations/ #サーバー上でdocker compose する前に__init__.py以外を削除する
+
 
 node_modules
 
@@ -16,7 +17,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-build/
+# build/
 develop-eggs/
 dist/
 downloads/
