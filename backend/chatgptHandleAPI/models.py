@@ -49,7 +49,7 @@ class Persona(models.Model):
     uuid(uuid): ペルソナ識別のためのUUID
     createdAt(DateTime): ペルソナが追加された日時
     thread(Thread): どのThreadでのペルソナか
-    utterance(Utterance): 元になったUtterance
+    utterance(Utterance): 元になったUtterance(User,SystemともUserのUtteranceを基にする)
     persona(string): ペルソナ記述(utteranceの一部または全て.多少の加工も考慮される)
   """
   uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -74,6 +74,8 @@ class SystemPersona(Persona):
   """システムのペルソナを管理するテーブル
 
   Arg:
-    similarity(int):  元の文章(utterance)とpersonaのcos類似度.(研究対象)
+    user_persona(UserPersona): 元になったUserPersona.(知能シンポのため一旦未実装)
+    similarity(int):  元の文章(utterance)かUserPersonaとpersonaのcos類似度.(研究対象)
   """
+  # user_persona = models.ForeignKey()
   similarity = models.IntegerField()
