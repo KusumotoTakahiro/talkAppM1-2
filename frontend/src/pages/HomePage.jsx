@@ -128,6 +128,7 @@ const Home = () => {
   }
 
   // uttranceInputで使う関数
+  // ユーザのメッセージ送信を起点に全ての関数が動く．
   const handleSendMessage = async (message) => {
     try {
       await axios.post(baseURL+'/Uttrance', {
