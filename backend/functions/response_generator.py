@@ -2,16 +2,13 @@ import uuid
 from openai import OpenAI
 import environ
 import json
+import random
 
 env = environ.Env()
 env.read_env()
-client = OpenAI(
-    # This is the default and can be omitted
-    api_key=env('OPENAI_SECRET_KEY') 
-)
+client = OpenAI(api_key=env('OPENAI_SECRET_KEY'))
 
-# 無駄に使いたくない時はココのパラメータで切り替える．
-use_chatgpt = True
+use_chatgpt = env('USE_OPENAI')
 
 def create_response(request_data, UserPersona, SystemPersona, Thread):
     """
@@ -51,53 +48,54 @@ def create_response(request_data, UserPersona, SystemPersona, Thread):
                 now_user.append(d.persona)
             for d in sp_data:
                 now_system.append(d.persona)
-            now_user_string = '\n'.join(now_user)
-            now_system_string = '\n'.join(now_system)
+            now_user_string = '\n'.join("*" + persona for persona in now_user)
+            now_system_string = '\n'.join("*" + persona for persona in now_system)
             prompt = ""
             prompt_type = thread_info[0].prompt_type
-            if prompt_type == 'user_and_system_have_persona':
-                prompt = f"""
+            # 共通プロンプト
+            prompt = """
                     You are an agent who does the chatting in your daily life.
 
                     The output should be a markdown code snippet formatted in the following schema in Japanese:
 
-                    \'\'\'
-                    {{
-                        utterance: string, // A response statement to the previous input
-                    }}
-                    \'\'\'
+                    {
+                        "utterance": string // A response statement to the previous input
+                    }
 
                     NOTES:
-                    * Please do not include anything other than JSON in your answer
-                    * Response must be Japanese
-                    * Response is up to 30 tokens
-                    * Don't be too formal. Keep the conversation casual
-
+                    * Please do not include anything other than JSON in your answer.
+                    * Response must be Japanese.
+                    * Response is up to 100 characters. 
+                    * Please return within 100 characters. However, avoid unnatural endings.
+                    * Don't be too formal. Keep the conversation casual.
+                    """
+            if prompt_type == 'user_and_system_have_persona':
+                # 共感応答
+                if random.random() < 0.6:
+                    prompt += """
+                        * Consider at least one sentence of your persona in your answer.
+                        * Expand from conversation to specifics.
+                    """
+                # 質問応答
+                else:
+                    prompt += """
+                        * Make sure to ask questions.
+                        * Consider at least one sentence of your partner's persona.
+                    """
+                prompt += f"""
                     Your name is Cataro.
-                    Your persona is [{now_system_string}].
-                    Your conversation partner's persona is [{now_user_string}].
+                    Your persona is following.
+                    {now_system_string}
+
+                    Your conversation partner's persona is following.
+                    {now_user_string}]
+
                     Answer the following questions, taking into account the above settings.
 
                     Your conversation partner's said "{request_data['content']}"
                 """
             elif prompt_type == 'user_have_persona':
-                prompt = f"""
-                    You are an agent who does the chatting in your daily life.
-
-                    The output should be a markdown code snippet formatted in the following schema in Japanese:
-
-                    \'\'\'
-                    {{
-                        utterance: string, // A response statement to the previous input
-                    }}
-                    \'\'\'
-
-                    NOTES:
-                    * Please do not include anything other than JSON in your answer
-                    * Response must be Japanese
-                    * Response is up to 30 tokens
-                    * Don't be too formal. Keep the conversation casual
-
+                prompt += f"""
                     Your name is Cataro.
                     Your conversation partner's persona is [{now_user_string}].
                     Answer the following questions, taking into account the above settings.
@@ -105,23 +103,7 @@ def create_response(request_data, UserPersona, SystemPersona, Thread):
                     Your conversation partner's said "{request_data['content']}"
                 """
             elif prompt_type == 'system_have_persona':
-                prompt = f"""
-                    You are an agent who does the chatting in your daily life.
-
-                    The output should be a markdown code snippet formatted in the following schema in Japanese:
-
-                    \'\'\'
-                    {{
-                        utterance: string, // A response statement to the previous input
-                    }}
-                    \'\'\'
-
-                    NOTES:
-                    * Please do not include anything other than JSON in your answer
-                    * Response must be Japanese
-                    * Response is up to 30 tokens
-                    * Don't be too formal. Keep the conversation casual
-
+                prompt += f"""
                     Your name is Cataro.
                     Your persona is [{now_system_string}].
                     Answer the following questions, taking into account the above settings.
@@ -129,30 +111,14 @@ def create_response(request_data, UserPersona, SystemPersona, Thread):
                     Your conversation partner's said "{request_data['content']}"
                 """
             elif prompt_type == 'no_persona':
-                prompt = f"""
-                    You are an agent who does the chatting in your daily life.
-
-                    The output should be a markdown code snippet formatted in the following schema in Japanese:
-
-                    \'\'\'
-                    {{
-                        utterance: string, // A response statement to the previous input
-                    }}
-                    \'\'\'
-
-                    NOTES:
-                    * Please do not include anything other than JSON in your answer
-                    * Response must be Japanese
-                    * Response is up to 30 tokens
-                    * Don't be too formal. Keep the conversation casual
-
-                    Your name is Cataro.
+                prompt += f"""
                     Answer the following questions, taking into account the above settings.
-
                     Your conversation partner's said "{request_data['content']}"
                 """
+            prompt += "{"
             print('prompt_type : ', prompt_type)
             # print(prompt)
+            # print(type(prompt))
             chatgpt_res = client.chat.completions.create(
                 model='gpt-3.5-turbo',
                 messages=[
@@ -164,9 +130,9 @@ def create_response(request_data, UserPersona, SystemPersona, Thread):
                 top_p=0.9,
             )
             content = chatgpt_res.choices[0].message.content
-            # print(content)
+            print(content)
             try:
-                response_json = json.loads(content)
+                response_json = json.loads("{"+content)
                 return {
                     'content': response_json['utterance'],
                     'talker': 'system',
