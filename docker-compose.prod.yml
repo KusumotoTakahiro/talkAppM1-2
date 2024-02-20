@@ -14,11 +14,12 @@ services:
       - "8080:8080" # ローカルのポート:コンテナのポート
     command: >
       sh -c '
-        python backend/manage.py makemigrations --noinput &&
-        python backend/manage.py migrate --noinput &&
-        python backend/manage.py collectstatic --noinput &&
         cd backend &&
-        gunicorn -w 4 -b 0.0.0.0:8080 backend.wsgi:application
+        python manage.py makemigrations --noinput &&
+        python manage.py migrate --noinput &&
+        python manage.py collectstatic --noinput &&
+        # gunicorn -w 4 -b 0.0.0.0:8080 backend.wsgi:application
+        python manage.py runserver 0.0.0.0:8080
       '
     depends_on:
       db:
@@ -38,26 +39,24 @@ services:
     volumes:
       - ./frontend:/code/frontend
       - talkAppM1_node_modules:/code/frontend/node_modules
-    # command: > 
-    #   sh -c '
-    #     cd frontend && 
-    #     npm install &&
-    #     WATCHPACK_POLLING=true npm start
-    #     # npm run build # 本番時のbuildコマンド
-    #   '
-    # ports:
-    #   - "3000:3000"
-  
-  nginx:
-    image: nginx
-    container_name: nginx
+    command: > 
+      sh -c '
+        cd frontend && 
+        npm install
+        WATCHPACK_POLLING=true npm start
+        # npm run build # 本番時のbuildコマンド
+      '
     ports:
-      - 3000:80
-    volumes:
-      - ./frontend/build:/var/www/html
-      - ./nginx/:/etc/nginx/conf.d/
-    depends_on:
-      - frontend
+      - "3000:3000"
+  
+  # nginx:
+  #   image: nginx
+  #   container_name: nginx
+  #   ports:
+  #     - 3000:80
+  #   volumes:
+  #     - ./frontend/build:/var/www/html
+  #     - ./nginx/:/etc/nginx/conf.d/
 
 
   db:
