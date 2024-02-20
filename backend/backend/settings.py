@@ -151,7 +151,8 @@ REST_FRAMEWORK = {
 }
 
 CORS_ORIGIN_WHITELIST = [
-    'http://localhost:3000'
+    'http://localhost:3000',
+    'https://talkappm1-2.netlify.app',
 ]
 
 AUTH_USER_MODEL = "login.CustomUser"
