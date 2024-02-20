@@ -19,7 +19,7 @@ const TalkLog = ({utterances}) => {
   const [visibility, setVisibility] = React.useState(true)
   return (
   <>
-    <Card  sx={{ width: 500, margin: 'auto', marginTop: '30px' }}>
+    <Card  sx={{ width: '80%', margin: 'auto', marginTop: '30px' }}>
       <Typography gutterBottom variant="h5" component="div">
         {utterances.name}会話履歴
         {

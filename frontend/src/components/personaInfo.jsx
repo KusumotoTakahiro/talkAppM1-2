@@ -20,7 +20,7 @@ const PersonaInfo = ({personaInfo}) => {
   const [visibility, setVisibility] = React.useState(true)
   return (
     <>
-      <Card sx={{ width: 500, margin: 'auto', marginTop: '30px' }}>
+      <Card sx={{ width: '70%', margin: 'auto', marginTop: '30px' }}>
         <Typography gutterBottom variant="h5" component="div">
           {personaInfo.name}ペルソナ情報
           {
