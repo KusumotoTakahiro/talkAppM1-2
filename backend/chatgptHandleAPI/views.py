@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from functions.response_generator import create_response
 from functions.persona import sprit_sentences
+from functions.persona_generator import create_system_persona_by_chatgpt
 
 
 class ThreadListView(generics.ListCreateAPIView):
@@ -127,6 +128,8 @@ class SystemPersonaListView(generics.ListCreateAPIView):
   serializer_class = SystemPersonSerializer
 
   def create(self, request):
+    print('SystemPersona')
+    print(request.data)
     data = request.data
     sentences = sprit_sentences(data)
     headers = None
@@ -174,6 +177,8 @@ class UserPersonaListView(generics.ListCreateAPIView):
   serializer_class = UserPersonaSerializer
 
   def create(self, request):
+    print('UserPersona')
+    print(request.data)
     data = request.data
     sentences = sprit_sentences(data)
     headers = None
@@ -188,6 +193,8 @@ class UserPersonaListView(generics.ListCreateAPIView):
         user_serializer =  self.get_serializer(data=processed_data)
         user_serializer.is_valid(raise_exception=True)
         user_serializer.save()
+        # ここでSystemのPersonaを作成するメソッドを実行．
+        create_system_persona(data['thread'], data['utterance'], sentence['sentence'])
         headers = self.get_success_headers(user_serializer.data)
     return Response(
       {},
@@ -232,3 +239,13 @@ def filter_by_userid(serializer_data, userid):
 def sorted_by_created(redata):
   sorted_data = sorted(redata, key=lambda s: s['created_at'])
   return sorted_data
+
+def create_system_persona(thread_uuid, utterance_uuid, persona):
+  csp = create_system_persona_by_chatgpt(persona)
+  system_persona_instance = SystemPersona.objects.create(
+    thread=Thread.objects.get(uuid=thread_uuid),
+    utterance=Utterance.objects.get(uuid=utterance_uuid),
+    persona=csp['system_persona'],
+    similarity=0
+  )
+  system_persona_instance.save()
