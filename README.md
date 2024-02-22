@@ -111,3 +111,7 @@ docker compose up --build の中で，npm run build してたら，
 
 イマイチわかってない．とりあえずコンテナは起動しているので問題ない？
 多分，マウントで永続化させる方法とかは確認する必要がありそう．
+
+### 本番環境用実行コマンド
+
+docker compose -f docker-compose.prod.yml up
