@@ -8,24 +8,44 @@ client = OpenAI(api_key=env('OPENAI_SECRET_KEY'))
 
 use_chatgpt = env('USE_OPENAI')
 
-def categorize(utterance_content):
+def categorize(dialogue_data):
+    """
+    直近３往復の発話から次の発話として適切な発話のタイプを判定する．
+    """
+    dialog_length = len(dialogue_data)
+    last_dialog = ""
+    if dialog_length < 5:
+        for i in range(0, dialog_length):
+            data = dialogue_data[i]
+            last_dialog += f"{data.talker}: [{data.content}]\n"
+    else:
+        for i in range(dialog_length - 5, dialog_length):
+            data = dialogue_data[i]
+            last_dialog += f"{data.talker}: [{data.content}]\n"
+    print('会話履歴 : \n' + last_dialog)
     if (use_chatgpt):
         prompt = f"""
-                What is the most appropriate response to the following statement?
-                {utterance_content}
+                Choose the appropriate next utterance in the following conversation flow.
+                {last_dialog}
+
                 """
         prompt += """"
                 The output should be a markdown code snippet formatted in the following schema in Japanese:
                 {
-                    "option": string  // A or B or C or D
+                    "option": string  // QUESTION or TOPIC or DISCUUSION or EMPATHY
+                    "target": string   // answer in one word.
                 }
-                A Digging deeper into an uncommon word
-                B Presenting a new topic
-                C Presenting a controversial topic
-                D Empathy
+
+                QUESTION:  Digging deeper into an uncommon word
+                TOPIC: Offering a completely different topic from previous topics
+                DISCUSSION: Providing contrasting topics of discussion in the chat partner's statements
+                EMPATHY: Sympathy for the statements of the dialogue partner
 
                 Notes
-                * Be aware that the conversation should be confrontational.
+                * If the option is QUESTION, Answer in a word what the question is about.
+                * If the option is TOPIC, Answer what topic is appropriate.
+                * If the option is DISCUSSION, Answer in a word what the DISCUSSION is about.
+                * IF the option is EMPATHY, Answer in one word what you empathize with.
 
                 {
                 """
@@ -41,9 +61,10 @@ def categorize(utterance_content):
             top_p=0.9,
         )
         content = chatgpt_res.choices[0].message.content
+        print(content)
         try:
             response_json = json.loads("{"+content)
-            return { 'system_persona': response_json['option'] }
+            return response_json
         except json.JSONDecodeError as e:
             print(f"Error decoding JSON: {e}")
         except KeyError as e:

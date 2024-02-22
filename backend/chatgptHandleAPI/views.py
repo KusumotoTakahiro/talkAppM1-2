@@ -84,8 +84,12 @@ class UttranceListView(generics.ListCreateAPIView):
     user_serializer =  self.get_serializer(data=data)
     user_serializer.is_valid(raise_exception=True)
     user_serializer.save()
+    # 直近２.5往復分発話を取得する．
+    thread = uuid.UUID(data['thread'])
+    dialogue_data = Utterance.objects.filter(thread=thread)
+    soreted_data = dialogue_sorted_by_created(dialogue_data)
     # system側のutteranceを保存
-    processed_data = create_response(data, UserPersona, SystemPersona, Thread)
+    processed_data = create_response(data, soreted_data, UserPersona, SystemPersona, Thread)
     system_serializer = self.get_serializer(data=processed_data)
     system_serializer.is_valid(raise_exception=True)
     system_serializer.save()
@@ -238,6 +242,13 @@ def filter_by_userid(serializer_data, userid):
 
 def sorted_by_created(redata):
   sorted_data = sorted(redata, key=lambda s: s['created_at'])
+  return sorted_data
+
+def dialogue_sorted_by_created(utterances):
+  redata = []
+  for u in utterances:
+    redata.append(u)
+  sorted_data = sorted(redata, key=lambda s: s.created_at)
   return sorted_data
 
 def create_system_persona(thread_uuid, utterance_uuid, persona):

@@ -2,7 +2,7 @@ import uuid
 from openai import OpenAI
 import environ
 import json
-import random
+from functions.chat_categorizer import categorize
 
 env = environ.Env()
 env.read_env()
@@ -10,7 +10,7 @@ client = OpenAI(api_key=env('OPENAI_SECRET_KEY'))
 
 use_chatgpt = env('USE_OPENAI')
 
-def create_response(request_data, UserPersona, SystemPersona, Thread):
+def create_response(request_data, dialogue_data, UserPersona, SystemPersona, Thread):
     """
     ユーザからの応答を受け取り、chatgptを用いて返答を生成します。
 
@@ -21,6 +21,8 @@ def create_response(request_data, UserPersona, SystemPersona, Thread):
         - 'content' (string): ユーザからの応答テキスト。
         - 'talker' (string): ユーザの発言者名（'user'）。
         - 'thread' (string): トークセッションを指定する外部キー。
+    dialogue_data: array
+        このスレッドでの対話データ
 
     Returns
     -------
@@ -67,20 +69,37 @@ def create_response(request_data, UserPersona, SystemPersona, Thread):
                     * Response must be Japanese.
                     * Response is up to 100 characters. 
                     * Please return within 100 characters. However, avoid unnatural endings.
-                    * Don't be too formal. Keep the conversation casual.
+                    * Don't be too formal. Keep the conversation casual!!
                     """
             if prompt_type == 'user_and_system_have_persona':
+                chat_type = categorize(dialogue_data)
+                print('chat_type: ' + chat_type['option'])
+                print('chat_target: ' + chat_type['target'])
                 # 共感応答
-                if random.random() < 0.6:
-                    prompt += """
+                if chat_type['option'] == "EMPATHY":
+                    prompt += f"""
                         * Consider at least one sentence of your persona in your answer.
-                        * Expand from conversation to specifics.
+                        * Answer what you sympathize with {chat_type['target']}.
+                        * Include your brief thoughts.
                     """
                 # 質問応答
-                else:
-                    prompt += """
+                elif chat_type['option'] == "QUESTION":
+                    prompt += f"""
                         * Make sure to ask questions.
+                        * Ask questions about {chat_type['target']}.
                         * Consider at least one sentence of your partner's persona.
+                    """
+                # 新規話題の提供
+                elif chat_type['option'] == "TOPIC":
+                    prompt += f"""
+                        * Talk about a new topic. For example {chat_type['target']}.
+                        * Consider at least one sentence of your partner's persona.
+                    """
+                # 議論の提供
+                elif chat_type['option'] == "DISCUSSION":
+                    prompt += f"""
+                        * Speak from a slightly opposing position on the topic of {chat_type['target']}.
+                        * Consider at least one sentence of your persona.
                     """
                 prompt += f"""
                     Your name is Cataro.
@@ -118,7 +137,6 @@ def create_response(request_data, UserPersona, SystemPersona, Thread):
             prompt += "{"
             print('prompt_type : ', prompt_type)
             # print(prompt)
-            # print(type(prompt))
             chatgpt_res = client.chat.completions.create(
                 model='gpt-3.5-turbo',
                 messages=[
