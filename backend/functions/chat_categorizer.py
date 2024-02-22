@@ -32,43 +32,52 @@ def categorize(dialogue_data):
         prompt += """"
                 The output should be a markdown code snippet formatted in the following schema in Japanese:
                 {
-                    "option": string  // QUESTION or TOPIC or DISCUUSION or EMPATHY
+                    "option": string  // QUESTION or ANSWER or TOPIC or DISCUUSION or EMPATHY
                     "target": string   // answer in one word.
                 }
-
-                QUESTION:  Digging deeper into an uncommon word
-                TOPIC: Offering a completely different topic from previous topics
-                DISCUSSION: Providing contrasting topics of discussion in the chat partner's statements
-                EMPATHY: Sympathy for the statements of the dialogue partner
+                
+                ANSWER: Answer questions from your conversation partner.
+                QUESTION:  Digging deeper into an uncommon word.
+                DISCUSSION: Providing contrasting topics of discussion in the chat partner's statements.
+                TOPIC: Offering a completely different topic from previous topics.
+                EMPATHY: Sympathy for the statements of the dialogue partner.
 
                 Notes
+                * Consider them in order from the top and make the appropriate option.
                 * If the option is QUESTION, Answer in a word what the question is about.
+                * If the option is ANSWER, Describe the question he or she is asking in one word.
                 * If the option is TOPIC, Answer what topic is appropriate.
                 * If the option is DISCUSSION, Answer in a word what the DISCUSSION is about.
                 * IF the option is EMPATHY, Answer in one word what you empathize with.
 
                 {
                 """
-    try:
-        chatgpt_res = client.chat.completions.create(
-            model='gpt-3.5-turbo',
-            messages=[
-                {
-                    'role': 'user',
-                    'content': prompt
-                },
-            ],
-            top_p=0.9,
-        )
-        content = chatgpt_res.choices[0].message.content
-        print(content)
-        try:
-            response_json = json.loads("{"+content)
-            return response_json
-        except json.JSONDecodeError as e:
-            print(f"Error decoding JSON: {e}")
-        except KeyError as e:
-            print(f"Error accessing 'utterance' key: {e}")
-    except Exception as e:
-        print(f"Error: {e}")
-    return { 'system_persona': 'A' }
+    success_post = False
+    for i in range(5):
+        if (success_post == False):
+            print('chat_categorizer: ' + str(i) + '回目の実行')
+            try:
+                chatgpt_res = client.chat.completions.create(
+                    model='gpt-3.5-turbo',
+                    messages=[
+                        {
+                            'role': 'user',
+                            'content': prompt
+                        },
+                    ],
+                    top_p=0.9,
+                )
+                content = chatgpt_res.choices[0].message.content
+                print(content)
+                try:
+                    response_json = json.loads("{"+content)
+                except json.JSONDecodeError as e:
+                    print(f"Error decoding JSON: {e}")
+                except KeyError as e:
+                    print(f"Error accessing 'utterance' key: {e}")
+                else:
+                    success_post = True
+                    return response_json
+            except Exception as e:
+                print(f"Error: {e}")
+    return { 'option': 'EMPATHY', 'target': 'None' }
