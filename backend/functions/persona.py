@@ -36,20 +36,21 @@ def judge_persona(node, token):
 def judge_persona_by_chatgpt(sentence):
     if (use_chatgpt):
         prompt = f"""
-                Please extract from the following sentences any characteristic information that describes the person's inner self or preferences. If not, output "none".
-                {sentence}
+Please extract the parts of the following sentences that reveal your partner's tastes and personality
+{sentence}
+
                 """
         prompt += """"
-                The output should be a markdown code snippet formatted in the following schema in Japanese:
-                {
-                    "user_persona": string  // your partner's persona. or none.
-                }
+The output should be a markdown code snippet formatted in the following schema in Japanese:
+{
+    "user_persona": string  // your partner's persona. or none.
+}
 
-                * Please do not include anything other than JSON in your answer
-                * Response must be Japanese
-                * example) xxxが好き/xxxが嫌い/xxxが得意/...
+* Please do not include anything other than JSON in your answer.
+* If not, return none.
 
-                {
+
+{
                 """
     try:
         chatgpt_res = client.chat.completions.create(

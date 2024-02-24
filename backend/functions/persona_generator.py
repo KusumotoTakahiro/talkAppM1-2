@@ -24,7 +24,7 @@ def create_system_persona_by_chatgpt(user_psersona):
 
                 NOTES:
                 * Make it a short sentence.
-                * 50 characters max.
+                * 50 ~ 100 characters. min 50.
 
                 """
         prompt += "{"
