@@ -2,7 +2,9 @@ import uuid
 from openai import OpenAI
 import environ
 import json
-from functions.chat_categorizer import categorize
+from .conversation_maker import determination_flow
+from .embedding import embedding
+
 
 env = environ.Env()
 env.read_env()
@@ -51,97 +53,103 @@ def create_response(request_data, dialogue_data, UserPersona, SystemPersona, Thr
             now_system.append(d.persona)
         now_user_string = '\n'.join("*" + persona for persona in now_user)
         now_system_string = '\n'.join("*" + persona for persona in now_system)
-        prompt = ""
+        prompt = "You are an agent who does the chatting in your daily life. Your are キャタロー."
         prompt_type = thread_info[0].prompt_type
-        # 共通プロンプト
-        prompt = """
-                You are an agent who does the chatting in your daily life.
-
-                The output should be a markdown code snippet formatted in the following schema in Japanese:
-
-                {
-                    "utterance": string // A response statement to the previous input
-                }
-
-                NOTES:
-                * Please do not include anything other than JSON in your answer.
-                * Response must be Japanese.
-                * Response is up to 100 characters. 
-                * Please return within 100 characters. However, avoid unnatural endings.
-                * Don't be too formal. Keep the conversation casual!!
-                """
         if prompt_type == 'user_and_system_have_persona':
-            chat_type = categorize(dialogue_data)
-            print('chat_type: ' + chat_type['option'])
-            print('chat_target: ' + chat_type['target'])
-            # 共感応答
-            if chat_type['option'] == "EMPATHY":
+            # chat_type = categorize(dialogue_data)
+            # print('chat_type: ' + chat_type['option'])
+            # print('chat_target: ' + chat_type['target'])
+            # # 共感応答
+            # if chat_type['option'] == "EMPATHY":
+            #     prompt += f"""
+            #         * Consider at least one sentence of your persona in your answer.
+            #         * Answer what you sympathize with {chat_type['target']}.
+            #         * Include your brief thoughts.
+            #     """
+            # # 質問応答
+            # elif chat_type['option'] == "QUESTION":
+            #     prompt += f"""
+            #         * Make sure to ask questions.
+            #         * Ask questions about {chat_type['target']}.
+            #         * Consider at least one sentence of your partner's persona.
+            #     """
+            # # 新規話題の提供
+            # elif chat_type['option'] == "TOPIC":
+            #     prompt += f"""
+            #         * Talk about a new topic. For example {chat_type['target']}.
+            #         * Consider at least one sentence of your partner's persona.
+            #     """
+            # # 議論の提供
+            # elif chat_type['option'] == "DISCUSSION":
+            #     prompt += f"""
+            #         * Speak from a slightly opposing position on the topic of {chat_type['target']}.
+            #         * Consider at least one sentence of your persona.
+            #     """
+            # # 相手からの質問に答える
+            # elif chat_type['option'] == "ANSWER":
+            #     prompt += f"""
+            #         * Answer questions from your conversation partner by focusing on the topic of {chat_type['target']}.
+            #         * Consider at least one sentence of your persona.
+            #     """
+            summary = determination_flow(dialogue_data)
+            result = embedding(request_data['content'], now_user, now_system)
+            print(result)
+            if (result['user_persona'] == "" and result['system_persona'] == ""):
                 prompt += f"""
-                    * Consider at least one sentence of your persona in your answer.
-                    * Answer what you sympathize with {chat_type['target']}.
-                    * Include your brief thoughts.
+Based on a summary of the current conversation, ask questions that reveal user's personality.
+[conversation summary] {summary['summary']}
+
                 """
-            # 質問応答
-            elif chat_type['option'] == "QUESTION":
+            else:
                 prompt += f"""
-                    * Make sure to ask questions.
-                    * Ask questions about {chat_type['target']}.
-                    * Consider at least one sentence of your partner's persona.
+Expand the conversation based on persona differences.
+Also, be more specific in your talk!
+[You] {result['system_persona']}\n
+[User] {result['user_persona']}
+
+[conversation summary] {summary['summary']}
+
                 """
-            # 新規話題の提供
-            elif chat_type['option'] == "TOPIC":
-                prompt += f"""
-                    * Talk about a new topic. For example {chat_type['target']}.
-                    * Consider at least one sentence of your partner's persona.
-                """
-            # 議論の提供
-            elif chat_type['option'] == "DISCUSSION":
-                prompt += f"""
-                    * Speak from a slightly opposing position on the topic of {chat_type['target']}.
-                    * Consider at least one sentence of your persona.
-                """
-            # 相手からの質問に答える
-            elif chat_type['option'] == "ANSWER":
-                prompt += f"""
-                    * Answer questions from your conversation partner by focusing on the topic of {chat_type['target']}.
-                    * Consider at least one sentence of your persona.
-                """
-            prompt += f"""
-                Your name is Cataro in Japanese キャタロー.
-                Your persona is following.
-                {now_system_string}
+        # elif prompt_type == 'user_have_persona':
+        #     prompt += f"""
+        #         Your name is キャタロー in Japanese.
+        #         Your conversation partner's persona is [{now_user_string}].
+        #         Answer the following questions, taking into account the above settings.
 
-                Your conversation partner's persona is following.
-                {now_user_string}]
+        #         Your conversation partner's said "{request_data['content']}"
+        #     """
+        # elif prompt_type == 'system_have_persona':
+        #     prompt += f"""
+        #         Your name is キャタロー in Japanese.
+        #         Your persona is [{now_system_string}].
+        #         Answer the following questions, taking into account the above settings.
 
-                Answer the following questions, taking into account the above settings.
-
-                Your conversation partner's said "{request_data['content']}"
-            """
-        elif prompt_type == 'user_have_persona':
-            prompt += f"""
-                Your name is Cataro in Japanese キャタロー.
-                Your conversation partner's persona is [{now_user_string}].
-                Answer the following questions, taking into account the above settings.
-
-                Your conversation partner's said "{request_data['content']}"
-            """
-        elif prompt_type == 'system_have_persona':
-            prompt += f"""
-                Your name is Cataro in Japanese キャタロー.
-                Your persona is [{now_system_string}].
-                Answer the following questions, taking into account the above settings.
-
-                Your conversation partner's said "{request_data['content']}"
-            """
+        #         Your conversation partner's said "{request_data['content']}"
+        #     """
         elif prompt_type == 'no_persona':
             prompt += f"""
-                Answer the following questions, taking into account the above settings.
-                Your conversation partner's said "{request_data['content']}"
+            """
+        # 共通プロンプト
+        prompt += f"""
+The output should be a markdown code snippet formatted in the following schema in Japanese:
+
+{{
+    "utterance": string // A response statement to the previous input
+}}
+
+NOTES:
+* Please do not include anything other than JSON in your answer.
+* Response must be Japanese.
+* Response is up to 100 characters. However, avoid unnatural endings.
+* Don't be too formal. Keep the conversation casual!!
+
+Answer the following questions, taking into account the above settings.
+User said "{request_data['content']}"
+
             """
         prompt += "{"
         print('prompt_type : ', prompt_type)
-        # print(prompt)
+        print(prompt)
         success_post = False
         for i in range(5):
             if (success_post == False):
